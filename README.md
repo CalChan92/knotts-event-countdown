@@ -11,6 +11,7 @@ https://calchan92.github.io/knotts-event-countdown/
 
 *  Real-time countdowns to major events:
 
+  * Peanut’s Celebration
   * Boysenberry Festival
   * Ghost Town Alive!
   * Knott’s Scary Farm
@@ -18,6 +19,7 @@ https://calchan92.github.io/knotts-event-countdown/
 
 *  Dynamic seasonal effects:
 
+  * Peanuts Celebration → Yellow and Black Conffeti
   * Boysenberry Festival → drifting berry particles
   * Ghost Town Alive → desert dust
   * Scary Farm → green fog that builds throughout the year
