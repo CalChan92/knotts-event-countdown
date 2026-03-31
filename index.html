@@ -588,9 +588,6 @@
     <section class="grid" id="cards"></section>
     <section class="progress-wrap" id="progress-wrap"></section>
 
-    <section class="footer">
-      Dates currently loaded: Peanut’s Celebration begins <strong>January 31, 2026</strong>, Boysenberry Festival begins <strong>March 13, 2026</strong>, Ghost Town Alive! opens <strong>June 12, 2026</strong>, Knott’s Scary Farm opens <strong>September 17, 2026</strong>, and Knott’s Merry Farm opens <strong>November 20, 2026</strong>. All times are Pacific Time. By Channing Humphrey.
-    </section>
   </main>
 
   <script>
@@ -841,80 +838,80 @@
       }
     }
 
-    function buildCards() {
-      cardsEl.innerHTML = '';
-      progressWrap.innerHTML = '';
+function buildCards() {
+  cardsEl.innerHTML = '';
+  progressWrap.innerHTML = '';
 
-      countdowns.forEach(item => {
-        const targetDate = new Date(item.target);
+  countdowns.forEach(item => {
+    const targetDate = new Date(item.target);
 
-        const card = document.createElement('article');
-        card.className = `card ${item.key}`;
-        card.innerHTML = `
-          <div class="label">${item.label}</div>
-          <h2 class="title">${item.title}</h2>
-          <div class="date">Target date: ${formatDateOnly(targetDate)}</div>
-          <div class="countdown" id="countdown-${item.key}">
-            ${['Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
-              <div class="time-box">
-                <span class="value">00</span>
-                <span class="unit">${unit}</span>
-              </div>
-            `).join('')}
+    const card = document.createElement('article');
+    card.className = `card ${item.key}`;
+    card.innerHTML = `
+      <div class="label">${item.label}</div>
+      <h2 class="title">${item.title}</h2>
+      <div class="date">Target date: ${formatDateOnly(targetDate)}</div>
+      <div class="countdown" id="countdown-${item.key}">
+        ${['Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+          <div class="time-box">
+            <span class="value">00</span>
+            <span class="unit">${unit}</span>
           </div>
-          <div class="status">
-            <span id="status-${item.key}">${item.note}</span>
-            <span id="absolute-${item.key}"></span>
-          </div>
-        `;
-        cardsEl.appendChild(card);
+        `).join('')}
+      </div>
+      <div class="status">
+        <span id="status-${item.key}">${item.note}</span>
+        <span id="absolute-${item.key}"></span>
+      </div>
+    `;
+    cardsEl.appendChild(card);
 
-		  const infoCard = document.createElement('article');
-infoCard.className = 'card info-card';
+    const progress = document.createElement('div');
+    progress.className = 'progress-block';
+    progress.innerHTML = `
+      <div class="progress-label">
+        <span>${item.title}</span>
+        <span id="percent-${item.key}">0% of wait elapsed</span>
+      </div>
+      <div class="bar"><div class="fill ${item.key}" id="fill-${item.key}"></div></div>
+    `;
+    progressWrap.appendChild(progress);
+  });
 
-infoCard.innerHTML = `
-  <div class="label">Information</div>
-  <h2 class="title">Season Overview</h2>
+  const infoCard = document.createElement('article');
+  infoCard.className = 'card info-card';
 
-  <div class="date">
-    Dates currently loaded:
-  </div>
+  infoCard.innerHTML = `
+    <div class="label">Information</div>
+    <h2 class="title">Season Overview</h2>
 
-  <div class="info-text">
-    Peanuts Celebration begins <strong>January 31, 2026</strong>, 
-    Boysenberry Festival begins <strong>March 13, 2026</strong>, 
-    Ghost Town Alive! opens <strong>June 12, 2026</strong>, 
-    Knott’s Scary Farm opens <strong>September 17, 2026</strong>, 
-    and Knott’s Merry Farm opens <strong>November 20, 2026</strong>.
-  </div>
+    <div class="date">
+      Dates currently loaded:
+    </div>
 
-  <div class="info-text small">
-    All times are Pacific Time.<br>
-    By Channing Humphrey.
-  </div>
+    <div class="info-text">
+      Peanuts Celebration begins <strong>January 31, 2026</strong>,
+      Boysenberry Festival begins <strong>March 13, 2026</strong>,
+      Ghost Town Alive! opens <strong>June 12, 2026</strong>,
+      Knott’s Scary Farm opens <strong>September 17, 2026</strong>,
+      and Knott’s Merry Farm opens <strong>November 20, 2026</strong>.
+    </div>
 
-  <div class="info-text disclaimer">
-    This is a fan-made project.<br>
-    Please visit the official 
-    <a href="https://www.knotts.com" target="_blank">Knott’s Berry Farm website</a> 
-    for official information.
-  </div>
-`;
+    <div class="info-text small">
+      All times are Pacific Time.<br>
+      By Channing Humphrey.
+    </div>
 
-cardsEl.appendChild(infoCard);
+    <div class="info-text disclaimer">
+      This is a fan-made project.<br>
+      Please visit the official
+      <a href="https://www.knotts.com" target="_blank">Knott’s Berry Farm website</a>
+      for official information.
+    </div>
+  `;
 
-        const progress = document.createElement('div');
-        progress.className = 'progress-block';
-        progress.innerHTML = `
-          <div class="progress-label">
-            <span>${item.title}</span>
-            <span id="percent-${item.key}">0% of wait elapsed</span>
-          </div>
-          <div class="bar"><div class="fill ${item.key}" id="fill-${item.key}"></div></div>
-        `;
-        progressWrap.appendChild(progress);
-      });
-    }
+  cardsEl.appendChild(infoCard);
+}
 
 function updateCountdowns() {
   const now = new Date();
