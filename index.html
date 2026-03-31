@@ -897,6 +897,9 @@ function buildCards() {
     progressWrap.appendChild(progress);
   });
 
+	const infoCard = document.createElement('article');
+infoCard.className = 'card info-card';
+	
 const datesText = countdowns.map(item => {
   const date = new Date(item.target);
   return `${item.label} ${item.label.includes('Farm') ? 'opens' : 'begins'} <strong>${formatDateOnly(date)}</strong>`;
