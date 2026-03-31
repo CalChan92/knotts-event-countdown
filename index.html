@@ -825,9 +825,20 @@ if (end && now > end) {
 
     // LIVE NOW
 if (end && now >= target && now <= end) {
-  countEl.querySelectorAll('.value').forEach(el => el.textContent = '00');
+  const liveDiff = end - now;
+
+  const days = Math.floor(liveDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((liveDiff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((liveDiff / (1000 * 60)) % 60);
+  const seconds = Math.floor((liveDiff / 1000) % 60);
+
+  const values = [days, hours, minutes, seconds];
+  countEl.querySelectorAll('.value').forEach((el, i) => {
+    el.textContent = String(values[i]).padStart(2, '0');
+  });
+
   statusEl.innerHTML = '<span class="live-now">LIVE NOW</span>';
-  absoluteEl.textContent = formatDateOnly(end);
+  absoluteEl.textContent = `Ends in ${days} day${days !== 1 ? 's' : ''}`;
   percentEl.textContent = '100% of wait elapsed';
   fillEl.className = `fill ${item.key}`;
   fillEl.style.width = '100%';
