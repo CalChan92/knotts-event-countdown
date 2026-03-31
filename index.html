@@ -451,6 +451,39 @@
       letter-spacing: 0.04em;
     }
 
+	  .card.info-card {
+  border-color: rgba(215,171,97,0.35);
+  background: linear-gradient(180deg, rgba(45, 34, 24, 0.95), rgba(20, 14, 9, 0.95));
+}
+
+.info-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.info-text.small {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.info-text.disclaimer {
+  font-size: 0.85rem;
+  margin-top: 12px;
+  border-top: 1px solid rgba(215,171,97,0.15);
+  padding-top: 10px;
+}
+
+.info-text a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.info-text a:hover {
+  opacity: 0.8;
+}
+
     @keyframes hauntGlow {
       0%   { box-shadow: 0 0 12px rgba(124,255,178,0.4); }
       50%  { box-shadow: 0 0 22px rgba(124,255,178,0.7); }
@@ -835,6 +868,40 @@
           </div>
         `;
         cardsEl.appendChild(card);
+
+		  const infoCard = document.createElement('article');
+infoCard.className = 'card info-card';
+
+infoCard.innerHTML = `
+  <div class="label">Information</div>
+  <h2 class="title">Season Overview</h2>
+
+  <div class="date">
+    Dates currently loaded:
+  </div>
+
+  <div class="info-text">
+    Peanuts Celebration begins <strong>January 31, 2026</strong>, 
+    Boysenberry Festival begins <strong>March 13, 2026</strong>, 
+    Ghost Town Alive! opens <strong>June 12, 2026</strong>, 
+    Knott’s Scary Farm opens <strong>September 17, 2026</strong>, 
+    and Knott’s Merry Farm opens <strong>November 20, 2026</strong>.
+  </div>
+
+  <div class="info-text small">
+    All times are Pacific Time.<br>
+    By Channing Humphrey.
+  </div>
+
+  <div class="info-text disclaimer">
+    This is a fan-made project.<br>
+    Please visit the official 
+    <a href="https://www.knotts.com" target="_blank">Knott’s Berry Farm website</a> 
+    for official information.
+  </div>
+`;
+
+cardsEl.appendChild(infoCard);
 
         const progress = document.createElement('div');
         progress.className = 'progress-block';
