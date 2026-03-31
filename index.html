@@ -439,11 +439,25 @@
       box-shadow: 0 0 10px rgba(220,240,255,0.45);
     }
 
-    .footer {
-      padding: 0 24px 24px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
+.footer {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(215,171,97,0.15);
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.footer a:hover {
+  opacity: 0.8;
+}
 
     .done {
       color: #ffd694;
@@ -588,6 +602,11 @@
     <section class="grid" id="cards"></section>
     <section class="progress-wrap" id="progress-wrap"></section>
 
+<section class="footer">
+  Knott’s Seasonal Countdown Board • Build v1.2.0 • Updated March 31, 2026<br>
+  Fan-made project • <a href="https://www.knotts.com" target="_blank">Official Knott’s Website</a>
+</section>
+	  
   </main>
 
   <script>
@@ -878,37 +897,33 @@ function buildCards() {
     progressWrap.appendChild(progress);
   });
 
-  const infoCard = document.createElement('article');
-  infoCard.className = 'card info-card';
+const datesText = countdowns.map(item => {
+  const date = new Date(item.target);
+  return `${item.label} ${item.label.includes('Farm') ? 'opens' : 'begins'} <strong>${formatDateOnly(date)}</strong>`;
+}).join(', ');
 
-  infoCard.innerHTML = `
-    <div class="label">Information</div>
-    <h2 class="title">Season Overview</h2>
+infoCard.innerHTML = `
+  <div class="label">Information</div>
+  <h2 class="title">Season Overview</h2>
 
-    <div class="date">
-      Dates currently loaded:
-    </div>
+  <div class="date">Dates currently loaded:</div>
 
-    <div class="info-text">
-      Peanuts Celebration begins <strong>January 31, 2026</strong>,
-      Boysenberry Festival begins <strong>March 13, 2026</strong>,
-      Ghost Town Alive! opens <strong>June 12, 2026</strong>,
-      Knott’s Scary Farm opens <strong>September 17, 2026</strong>,
-      and Knott’s Merry Farm opens <strong>November 20, 2026</strong>.
-    </div>
+  <div class="info-text">
+    ${datesText}.
+  </div>
 
-    <div class="info-text small">
-      All times are Pacific Time.<br>
-      By Channing Humphrey.
-    </div>
+  <div class="info-text small">
+    All times are Pacific Time.<br>
+    By Channing Humphrey.
+  </div>
 
-    <div class="info-text disclaimer">
-      This is a fan-made project.<br>
-      Please visit the official
-      <a href="https://www.knotts.com" target="_blank">Knott’s Berry Farm website</a>
-      for official information.
-    </div>
-  `;
+  <div class="info-text disclaimer">
+    This is a fan-made project.<br>
+    Please visit the official 
+    <a href="https://www.knotts.com" target="_blank">Knott’s Berry Farm website</a> 
+    for official information.
+  </div>
+`;
 
   cardsEl.appendChild(infoCard);
 }
