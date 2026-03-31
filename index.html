@@ -89,6 +89,19 @@
       opacity: 1;
     }
 
+	  .particles-peanuts::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,220,90,0.9) 3px, transparent 3px),
+    radial-gradient(circle, rgba(0,0,0,0.85) 3px, transparent 3px);
+  background-size: 120px 120px, 140px 140px;
+  background-position: 0px 0px, 60px 40px;
+  animation: confettiFall 12s linear infinite;
+  opacity: 0.6;
+}
+
     .particles-boysenberry::before,
     .particles-dust::before,
     .particles-snow::before {
@@ -244,6 +257,20 @@
       transform: translateY(-2px);
     }
 
+.card.peanuts {
+  border-color: rgba(255, 220, 90, 0.6);
+  box-shadow: 0 0 18px rgba(255, 220, 90, 0.18);
+}
+
+.card.peanuts .label {
+  color: #ffe27a;
+}
+
+.fill.peanuts {
+  background: linear-gradient(90deg, #caa600, #ffe27a);
+  box-shadow: 0 0 10px rgba(255, 226, 122, 0.45);
+}
+	  
     .card.gta {
       border-color: rgba(215, 140, 60, 0.6);
       box-shadow: 0 0 18px rgba(215, 140, 60, 0.15);
@@ -445,6 +472,15 @@
       100% { transform: translateX(2%) translateY(-3%) scale(1.06); }
     }
 
+	  @keyframes confettiFall {
+  0% {
+    background-position: 0px 0px, 60px 40px;
+  }
+  100% {
+    background-position: 20px 160px, 80px 200px;
+  }
+}
+
     @keyframes floatBerry {
       0%   { transform: translateY(0); }
       100% { transform: translateY(-100px); }
@@ -494,6 +530,7 @@
   <div class="fog fog-2"></div>
   <div class="fog fog-3"></div>
 
+  <div class="particles particles-peanuts"></div>
   <div class="particles particles-boysenberry"></div>
   <div class="particles particles-dust"></div>
   <div class="particles particles-snow"></div>
@@ -532,6 +569,15 @@
     };
 
     const countdowns = [
+		{
+  key: 'peanuts',
+  label: 'Peanuts Celebration',
+  title: 'Celebration Begins',
+  target: '2027-01-23T00:00:00-08:00',
+  end: '2027-02-21T23:59:59-08:00',
+  start: '2026-03-29T00:00:00-07:00',
+  note: 'Celebrate the Peanuts gang at Knott’s.'
+},
       {
         key: 'boysenberry',
         label: 'Boysenberry Festival',
@@ -713,6 +759,12 @@
         return;
       }
 
+		if (debugState.effect === 'peanuts') {
+  showParticle('peanuts');
+  applyParticleStrength('peanuts', debugState.strength);
+  return;
+}
+
       if (debugState.effect === 'dust') {
         showParticle('dust');
         applyParticleStrength('dust', debugState.strength);
@@ -737,6 +789,12 @@
         applyParticleStrength('boysenberry', 'medium');
         return;
       }
+
+		if (isEventActive('peanuts', now)) {
+  showParticle('peanuts');
+  applyParticleStrength('peanuts', 'medium');
+  return;
+}
 
       if (isEventActive('gta', now)) {
         showParticle('dust');
@@ -867,7 +925,7 @@ if (end && now >= target && now <= end) {
 }
 
     effectDebugToggle.addEventListener('click', () => {
-      const modes = ['off', 'berry', 'dust', 'fog', 'snow'];
+      const modes = ['off', 'berry', 'dust', 'fog', 'snow', 'peanuts'];
       const currentIndex = modes.indexOf(debugState.effect);
       debugState.effect = modes[(currentIndex + 1) % modes.length];
 
@@ -876,7 +934,8 @@ if (end && now >= target && now <= end) {
         berry: 'Effect: Berry',
         dust: 'Effect: Dust',
         fog: 'Effect: Fog',
-        snow: 'Effect: Snow'
+        snow: 'Effect: Snow',
+		peanuts: 'Effect: Peanuts'
       };
 
       effectDebugToggle.textContent = labels[debugState.effect];
