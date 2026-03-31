@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knott’s Seasonal Countdown Board</title>
+  <style>
+    :root {
+      --bg: #14100c;
+      --panel: rgba(35, 26, 18, 0.92);
+      --panel-2: rgba(52, 39, 28, 0.95);
+      --text: #f3e7cf;
+      --muted: #c8b795;
+      --line: #8e6c3f;
+      --accent: #d7ab61;
+      --accent-2: #8a5b24;
+      --shadow: rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(155, 107, 43, 0.16), transparent 35%),
+        linear-gradient(180deg, #1c1510 0%, #120d09 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+	
+	.live-now {
+	  color: #9cffb7;
+	  font-weight: bold;
+	  letter-spacing: 0.04em;
+	}
+
+    .fog {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 55vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      filter: blur(34px);
+      mix-blend-mode: screen;
+      transition: opacity 0.8s ease;
+    }
+
+    .fog-1,
+    .fog-2,
+    .fog-3 {
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .fog-1 {
+      background:
+        radial-gradient(circle at 15% 85%, rgba(124,255,178,0.20) 0%, rgba(124,255,178,0.10) 16%, transparent 42%),
+        radial-gradient(circle at 55% 90%, rgba(124,255,178,0.16) 0%, rgba(124,255,178,0.08) 14%, transparent 38%);
+      animation: fogDrift1 22s ease-in-out infinite alternate;
+    }
+
+    .fog-2 {
+      background:
+        radial-gradient(circle at 85% 78%, rgba(124,255,178,0.16) 0%, rgba(124,255,178,0.07) 15%, transparent 36%),
+        radial-gradient(circle at 35% 72%, rgba(124,255,178,0.14) 0%, rgba(124,255,178,0.06) 14%, transparent 34%);
+      animation: fogDrift2 30s ease-in-out infinite alternate;
+    }
+
+    .fog-3 {
+      background:
+        radial-gradient(circle at 60% 98%, rgba(124,255,178,0.16) 0%, rgba(124,255,178,0.06) 14%, transparent 34%);
+      animation: fogDrift3 38s ease-in-out infinite alternate;
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      display: none;
+      opacity: 1;
+    }
+
+    .particles-boysenberry::before,
+    .particles-dust::before,
+    .particles-snow::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .particles-boysenberry::before {
+      background-image:
+        radial-gradient(circle, rgba(180,120,200,0.45) 2px, transparent 2px),
+        radial-gradient(circle, rgba(220,160,220,0.30) 1.5px, transparent 2px);
+      background-size: 120px 120px, 180px 180px;
+      animation: floatBerry 38s linear infinite;
+      opacity: 0.35;
+    }
+
+    .particles-dust::before {
+      background-image:
+        radial-gradient(circle, rgba(255,200,120,0.25) 1px, transparent 2px);
+      background-size: 140px 140px;
+      animation: driftDust 55s linear infinite;
+      opacity: 0.28;
+    }
+
+    .particles-snow,
+    .particles-snow::before,
+    .particles-snow::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-repeat: repeat;
+      will-change: background-position;
+    }
+
+    .particles-snow {
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.75) 1.6px, transparent 2px);
+      background-size: 170px 170px;
+      background-position: 30px 0px;
+      opacity: 0.45;
+      animation: snowFallMid 14s linear infinite;
+    }
+
+    .particles-snow::before {
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.95) 2.2px, transparent 2.6px);
+      background-size: 120px 120px;
+      background-position: 0px 0px;
+      opacity: 0.75;
+      animation: snowFallFront 10s linear infinite;
+    }
+
+    .particles-snow::after {
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.55) 1.2px, transparent 1.6px);
+      background-size: 220px 220px;
+      background-position: 60px 0px;
+      opacity: 0.28;
+      filter: blur(1px);
+      animation: snowFallBack 18s linear infinite;
+    }
+
+    .board {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, 100%);
+      background: linear-gradient(180deg, rgba(61,46,33,0.98), rgba(28,20,14,0.98));
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px var(--shadow), inset 0 0 0 2px rgba(215,171,97,0.18);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 28px 28px 18px;
+      border-bottom: 1px solid rgba(215,171,97,0.28);
+      background: linear-gradient(180deg, rgba(103,75,41,0.25), rgba(0,0,0,0));
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.05;
+      color: var(--text);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+    }
+
+    .today, .mode-toggle {
+      border: 1px solid rgba(215,171,97,0.28);
+      background: rgba(14, 10, 7, 0.4);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+    }
+
+    .mode-toggle {
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .mode-toggle:hover {
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      padding: 24px 24px 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid rgba(215,171,97,0.25);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card.gta {
+      border-color: rgba(215, 140, 60, 0.6);
+      box-shadow: 0 0 18px rgba(215, 140, 60, 0.15);
+    }
+
+    .card.gta .label {
+      color: #e0a15a;
+    }
+
+    .card.ksf {
+      border-color: rgba(80, 200, 120, 0.6);
+      box-shadow: 0 0 22px rgba(80, 200, 120, 0.25);
+      animation: hauntGlow 3s infinite ease-in-out;
+    }
+
+    .card.ksf .label {
+      color: #7cffb2;
+    }
+
+    .card.boysenberry {
+      border-color: rgba(150, 90, 180, 0.6);
+      box-shadow: 0 0 18px rgba(150, 90, 180, 0.16);
+    }
+
+    .card.boysenberry .label {
+      color: #c79ae8;
+    }
+
+    .card.merry {
+      border-color: rgba(180, 220, 255, 0.6);
+      box-shadow: 0 0 18px rgba(180, 220, 255, 0.16);
+    }
+
+    .card.merry .label {
+      color: #d8f0ff;
+    }
+
+    .label {
+      position: relative;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .title {
+      position: relative;
+      z-index: 1;
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+    }
+
+    .date {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+    }
+
+    .countdown {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .time-box {
+      border: 1px solid rgba(215,171,97,0.18);
+      border-radius: 12px;
+      background: rgba(10, 7, 5, 0.34);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .value {
+      display: block;
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 6px;
+    }
+
+    .unit {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .status {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      border-top: 1px solid rgba(215,171,97,0.16);
+      padding-top: 12px;
+    }
+
+    .progress-wrap {
+      padding: 0 24px 24px;
+    }
+
+    .progress-block {
+      padding: 14px 16px 16px;
+      border: 1px solid rgba(215,171,97,0.2);
+      border-radius: 14px;
+      background: rgba(20, 14, 9, 0.5);
+      margin-top: 10px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(215,171,97,0.12);
+    }
+
+    .fill {
+      height: 100%;
+      width: 0;
+      min-width: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      transition: width 0.8s ease;
+      box-shadow: 0 0 6px rgba(255,255,255,0.15);
+    }
+
+    .fill.gta {
+      background: linear-gradient(90deg, #8a5b24, #e0a15a);
+      box-shadow: 0 0 8px rgba(224,161,90,0.4);
+    }
+
+    .fill.ksf {
+      background: linear-gradient(90deg, #1f5f3a, #7cffb2);
+      box-shadow: 0 0 12px rgba(124,255,178,0.6);
+    }
+
+    .fill.boysenberry {
+      background: linear-gradient(90deg, #6f3f86, #c79ae8);
+      box-shadow: 0 0 10px rgba(199,154,232,0.45);
+    }
+
+    .fill.merry {
+      background: linear-gradient(90deg, #7fb7d8, #f4fbff);
+      box-shadow: 0 0 10px rgba(220,240,255,0.45);
+    }
+
+    .footer {
+      padding: 0 24px 24px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .done {
+      color: #ffd694;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes hauntGlow {
+      0%   { box-shadow: 0 0 12px rgba(124,255,178,0.4); }
+      50%  { box-shadow: 0 0 22px rgba(124,255,178,0.7); }
+      100% { box-shadow: 0 0 12px rgba(124,255,178,0.4); }
+    }
+
+    @keyframes fogDrift1 {
+      0%   { transform: translateX(-2%) translateY(1%) scale(1); }
+      100% { transform: translateX(3%) translateY(-2%) scale(1.08); }
+    }
+
+    @keyframes fogDrift2 {
+      0%   { transform: translateX(2%) translateY(0%) scale(1.02); }
+      100% { transform: translateX(-4%) translateY(2%) scale(1.10); }
+    }
+
+    @keyframes fogDrift3 {
+      0%   { transform: translateX(-1%) translateY(0%) scale(1); }
+      100% { transform: translateX(2%) translateY(-3%) scale(1.06); }
+    }
+
+    @keyframes floatBerry {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-100px); }
+    }
+
+    @keyframes driftDust {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(100px); }
+    }
+
+    @keyframes snowFallFront {
+      0%   { background-position: 0px 0px; }
+      100% { background-position: 4px 120px; }
+    }
+
+    @keyframes snowFallMid {
+      0%   { background-position: 30px 0px; }
+      100% { background-position: 28px 170px; }
+    }
+
+    @keyframes snowFallBack {
+      0%   { background-position: 60px 0px; }
+      100% { background-position: 62px 220px; }
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .countdown { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 540px) {
+      body { padding: 14px; }
+      .header, .grid, .progress-wrap, .footer {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+      .status, .progress-label, .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="fog fog-1"></div>
+  <div class="fog fog-2"></div>
+  <div class="fog fog-3"></div>
+
+  <div class="particles particles-boysenberry"></div>
+  <div class="particles particles-dust"></div>
+  <div class="particles particles-snow"></div>
+
+  <main class="board">
+    <section class="header">
+      <div class="eyebrow">Seasonal Timing Apparatus</div>
+      <h1 id="main-title">Knott’s Seasonal Countdown Board</h1>
+      <div class="subtitle" id="subtitle">
+        A live dashboard counting down to Boysenberry Festival, Ghost Town Alive!, Knott’s Scary Farm, and Knott’s Merry Farm.
+      </div>
+
+      <div class="topbar">
+        <div class="today" id="today-line"></div>
+        <div id="debug-controls" style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="mode-toggle" id="effect-debug-toggle">Effect: Off</button>
+          <button class="mode-toggle" id="strength-debug-toggle">Strength: Medium</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="cards"></section>
+    <section class="progress-wrap" id="progress-wrap"></section>
+
+    <section class="footer">
+      Dates currently loaded: Boysenberry Festival begins <strong>March 13, 2026</strong>, Ghost Town Alive! opens <strong>June 12, 2026</strong>, Knott’s Scary Farm opens <strong>September 17, 2026</strong>, and Knott’s Merry Farm opens <strong>November 20, 2026</strong>. All times are Pacific Time. By Channing Humphrey.
+    </section>
+  </main>
+
+  <script>
+    const SHOW_DEBUG_CONTROLS = true;
+
+    const debugState = {
+      effect: 'off',      // off | berry | dust | fog | snow
+      strength: 'medium'  // off | low | medium | high
+    };
+
+    const countdowns = [
+      {
+        key: 'boysenberry',
+        label: 'Boysenberry Festival',
+        title: 'Festival Begins',
+        target: '2026-03-13T00:00:00-08:00',
+        end: '2026-04-12T23:59:59-07:00',
+        start: '2026-03-29T00:00:00-07:00',
+        note: 'Return of the Boysenberry Festival.'
+      },
+      {
+        key: 'gta',
+        label: 'Ghost Town Alive!',
+        title: 'Opening Day',
+        target: '2026-06-12T00:00:00-07:00',
+        end: '2026-08-30T23:59:59-07:00',
+        start: '2026-03-29T00:00:00-07:00',
+        note: 'Calico comes to life.'
+      },
+      {
+        key: 'ksf',
+        label: 'Knott’s Scary Farm',
+        title: 'Opening Night',
+        target: '2026-09-17T19:00:00-07:00',
+        end: '2026-10-31T23:59:59-07:00',
+        start: '2026-03-29T00:00:00-07:00',
+        note: 'The fog takes over.'
+      },
+      {
+        key: 'merry',
+        label: 'Knott’s Merry Farm',
+        title: 'Holiday Opening',
+        target: '2026-11-20T00:00:00-08:00',
+        end: '2027-01-03T23:59:59-08:00',
+        start: '2026-03-29T00:00:00-07:00',
+        note: 'Holiday season begins.'
+      }
+    ];
+
+    const cardsEl = document.getElementById('cards');
+    const progressWrap = document.getElementById('progress-wrap');
+    const todayLine = document.getElementById('today-line');
+    const debugControls = document.getElementById('debug-controls');
+    const effectDebugToggle = document.getElementById('effect-debug-toggle');
+    const strengthDebugToggle = document.getElementById('strength-debug-toggle');
+
+    const fogLayers = document.querySelectorAll('.fog');
+    const particleLayers = document.querySelectorAll('.particles');
+
+    if (!SHOW_DEBUG_CONTROLS) {
+      debugControls.style.display = 'none';
+    }
+
+    function formatDisplayDate(date) {
+      return new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
+    }
+
+    function formatDateOnly(date) {
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(date);
+    }
+
+    function getStrengthOpacity(level) {
+      const map = {
+        off: 0,
+        low: 0.06,
+        medium: 0.12,
+        high: 0.5
+      };
+      return map[level] ?? 0.12;
+    }
+
+    function getStrengthMultiplier(level) {
+      const map = {
+        off: 0,
+        low: 0.5,
+        medium: 1,
+        high: 1.6
+      };
+      return map[level] ?? 1;
+    }
+
+    function setFogOpacity(opacity) {
+      fogLayers.forEach(fog => {
+        fog.style.opacity = opacity.toFixed(3);
+      });
+    }
+
+    function hideAllParticles() {
+      particleLayers.forEach(layer => {
+        layer.style.display = 'none';
+        layer.style.opacity = '1';
+      });
+    }
+
+    function showParticle(key) {
+      hideAllParticles();
+      const active = document.querySelector(`.particles-${key}`);
+      if (active) {
+        active.style.display = 'block';
+      }
+    }
+
+    function applyParticleStrength(key, strength) {
+      const layer = document.querySelector(`.particles-${key}`);
+      if (!layer) return;
+
+      if (strength === 'off') {
+        layer.style.opacity = '0';
+        return;
+      }
+
+      layer.style.opacity = String(getStrengthMultiplier(strength));
+    }
+
+    function getEventByKey(key) {
+      return countdowns.find(item => item.key === key);
+    }
+
+    function isEventActive(key, now) {
+      const event = getEventByKey(key);
+      if (!event || !event.end) return false;
+
+      const start = new Date(event.target);
+      const end = new Date(event.end);
+
+      return now >= start && now <= end;
+    }
+
+    function getAutoFogOpacity(now) {
+      const buildStart = new Date('2026-01-01T00:00:00-08:00');
+      const ksfStart = new Date('2026-09-17T19:00:00-07:00');
+      const ksfEnd = new Date('2026-10-31T23:59:59-07:00');
+
+      if (now < buildStart) return 0;
+
+      if (now >= ksfStart && now <= ksfEnd) {
+        return 0.20;
+      }
+
+      if (now > ksfEnd) {
+        return 0;
+      }
+
+      const totalWindow = ksfStart - buildStart;
+      const elapsed = now - buildStart;
+      const percent = Math.min(100, Math.max(0, (elapsed / totalWindow) * 100));
+
+      return 0.02 + (percent / 100) * 0.18;
+    }
+
+    function applyFog(now) {
+      if (debugState.effect === 'fog') {
+        setFogOpacity(getStrengthOpacity(debugState.strength));
+        return;
+      }
+
+      if (debugState.effect !== 'off') {
+        setFogOpacity(0);
+        return;
+      }
+
+      setFogOpacity(getAutoFogOpacity(now));
+    }
+
+    function applySeasonalEffects(now) {
+      if (debugState.effect === 'berry') {
+        showParticle('boysenberry');
+        applyParticleStrength('boysenberry', debugState.strength);
+        return;
+      }
+
+      if (debugState.effect === 'dust') {
+        showParticle('dust');
+        applyParticleStrength('dust', debugState.strength);
+        return;
+      }
+
+      if (debugState.effect === 'snow') {
+        showParticle('snow');
+        applyParticleStrength('snow', debugState.strength);
+        return;
+      }
+
+      if (debugState.effect === 'fog') {
+        hideAllParticles();
+        return;
+      }
+
+      hideAllParticles();
+
+      if (isEventActive('boysenberry', now)) {
+        showParticle('boysenberry');
+        applyParticleStrength('boysenberry', 'medium');
+        return;
+      }
+
+      if (isEventActive('gta', now)) {
+        showParticle('dust');
+        applyParticleStrength('dust', 'medium');
+        return;
+      }
+
+      if (isEventActive('merry', now)) {
+        showParticle('snow');
+        applyParticleStrength('snow', 'medium');
+      }
+    }
+
+    function buildCards() {
+      cardsEl.innerHTML = '';
+      progressWrap.innerHTML = '';
+
+      countdowns.forEach(item => {
+        const targetDate = new Date(item.target);
+
+        const card = document.createElement('article');
+        card.className = `card ${item.key}`;
+        card.innerHTML = `
+          <div class="label">${item.label}</div>
+          <h2 class="title">${item.title}</h2>
+          <div class="date">Target date: ${formatDateOnly(targetDate)}</div>
+          <div class="countdown" id="countdown-${item.key}">
+            ${['Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+              <div class="time-box">
+                <span class="value">00</span>
+                <span class="unit">${unit}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="status">
+            <span id="status-${item.key}">${item.note}</span>
+            <span id="absolute-${item.key}"></span>
+          </div>
+        `;
+        cardsEl.appendChild(card);
+
+        const progress = document.createElement('div');
+        progress.className = 'progress-block';
+        progress.innerHTML = `
+          <div class="progress-label">
+            <span>${item.title}</span>
+            <span id="percent-${item.key}">0% of wait elapsed</span>
+          </div>
+          <div class="bar"><div class="fill ${item.key}" id="fill-${item.key}"></div></div>
+        `;
+        progressWrap.appendChild(progress);
+      });
+    }
+
+function updateCountdowns() {
+  const now = new Date();
+  todayLine.textContent = `Current time: ${formatDisplayDate(now)}`;
+
+  applyFog(now);
+  applySeasonalEffects(now);
+
+  countdowns.forEach(item => {
+    const target = new Date(item.target);
+    const end = item.end ? new Date(item.end) : null;
+    const start = new Date(item.start);
+    const diff = target - now;
+    const totalWindow = target - start;
+    const elapsed = now - start;
+
+    const countEl = document.getElementById(`countdown-${item.key}`);
+    const statusEl = document.getElementById(`status-${item.key}`);
+    const absoluteEl = document.getElementById(`absolute-${item.key}`);
+    const percentEl = document.getElementById(`percent-${item.key}`);
+    const fillEl = document.getElementById(`fill-${item.key}`);
+
+    // EVENT OVER
+if (end && now > end) {
+  countEl.querySelectorAll('.value').forEach(el => el.textContent = '00');
+  statusEl.innerHTML = '<span class="done">Event Over</span>';
+  absoluteEl.textContent = formatDateOnly(end);
+  percentEl.textContent = '100% of wait elapsed';
+  fillEl.className = `fill ${item.key}`;
+  fillEl.style.width = '100%';
+  return;
+}
+
+    // LIVE NOW
+if (end && now >= target && now <= end) {
+  countEl.querySelectorAll('.value').forEach(el => el.textContent = '00');
+  statusEl.innerHTML = '<span class="live-now">LIVE NOW</span>';
+  absoluteEl.textContent = formatDateOnly(end);
+  percentEl.textContent = '100% of wait elapsed';
+  fillEl.className = `fill ${item.key}`;
+  fillEl.style.width = '100%';
+  return;
+}
+
+    // BEFORE START
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const values = [days, hours, minutes, seconds];
+    countEl.querySelectorAll('.value').forEach((el, i) => {
+      el.textContent = String(values[i]).padStart(2, '0');
+    });
+
+    absoluteEl.textContent = formatDateOnly(target);
+    statusEl.textContent = `${days} day${days !== 1 ? 's' : ''} remaining.`;
+
+    const percent = Math.min(100, Math.max(0, (elapsed / totalWindow) * 100));
+    percentEl.textContent = `${percent.toFixed(1)}% of wait elapsed`;
+    fillEl.className = `fill ${item.key}`;
+    fillEl.style.width = `${percent}%`;
+  });
+}
+
+    effectDebugToggle.addEventListener('click', () => {
+      const modes = ['off', 'berry', 'dust', 'fog', 'snow'];
+      const currentIndex = modes.indexOf(debugState.effect);
+      debugState.effect = modes[(currentIndex + 1) % modes.length];
+
+      const labels = {
+        off: 'Effect: Off',
+        berry: 'Effect: Berry',
+        dust: 'Effect: Dust',
+        fog: 'Effect: Fog',
+        snow: 'Effect: Snow'
+      };
+
+      effectDebugToggle.textContent = labels[debugState.effect];
+      updateCountdowns();
+    });
+
+    strengthDebugToggle.addEventListener('click', () => {
+      const modes = ['off', 'low', 'medium', 'high'];
+      const currentIndex = modes.indexOf(debugState.strength);
+      debugState.strength = modes[(currentIndex + 1) % modes.length];
+
+      const labels = {
+        off: 'Strength: Off',
+        low: 'Strength: Low',
+        medium: 'Strength: Medium',
+        high: 'Strength: High'
+      };
+
+      strengthDebugToggle.textContent = labels[debugState.strength];
+      updateCountdowns();
+    });
+
+    buildCards();
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+  </script>
+</body>
+</html>
